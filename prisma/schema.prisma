@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  profileImage String?
+  bio          String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Article {
+  id           String    @id @default(cuid())
+  title        String
+  slug         String    @unique
+  excerpt      String
+  content      String    // HTML content from editor
+  coverImage   String?
+  category     Category? @relation(fields: [categoryId], references: [id])
+  categoryId   String?
+  tags         Tag[]     @relation("ArticleTags")
+  status       String    @default("DRAFT") // "DRAFT", "PUBLISHED", "SCHEDULED"
+  featured     Boolean   @default(false)
+  publishedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  readingTime  Int       @default(1)
+  views        Int       @default(0)
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  articles    Article[]
+}
+
+model Tag {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  articles Article[] @relation("ArticleTags")
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  filename  String
+  url       String
+  altText   String?
+  width     Int?
+  height    Int?
+  size      Int?
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  id               String   @id @default("site_settings")
+  siteName         String   @default("MAD VIEW")
+  siteDescription  String   @default("Ideas, Politics, and Society")
+  logo             String?
+  favicon          String?
+  accentColor      String   @default("#8b0000") // Deep red
+  authorName       String   @default("Naga Vigneshwaran")
+  authorBio        String   @default("Political writer and independent author.")
+  authorImage      String?
+  socialLinks      String   @default("{}") // JSON string for social URLs
+  updatedAt        DateTime @updatedAt
+}
